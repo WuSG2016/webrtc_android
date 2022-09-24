@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/llXy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="@+id/rockerXY_View"
+        app:layout_constraintEnd_toEndOf="@+id/rockerXY_View"
+        app:layout_constraintBottom_toTopOf="@+id/rockerXY_View"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tvAngleXy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/_xpopup_white_color" />
+
+        <TextView
+            android:id="@+id/tvOrientationXy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/_xpopup_white_color" />
+    </LinearLayout>
+
+
+    <com.shy.rockerview.RockerView
+        android:layout_marginTop="10dp"
+        android:id="@+id/rockerXY_View"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        app:layout_constraintTop_toBottomOf="@+id/llXy"
+        app:layout_constraintStart_toStartOf="parent"
+        app:rockerBackground="@color/_xpopup_white_color"
+        app:rockerCallBackMode="CALL_BACK_MODE_STATE_CHANGE"
+        app:rockerScale="0.5"
+        app:rockerSpeedLevel="10" />
+
+    <LinearLayout
+        android:id="@+id/llZ"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@+id/rockerZ_View"
+        app:layout_constraintBottom_toTopOf="@+id/rockerZ_View"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="@+id/rockerZ_View"
+
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tvAngleZ"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:textColor="@color/_xpopup_white_color" />
+
+        <TextView
+            android:id="@+id/tvLevelZ"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/_xpopup_white_color" />
+    </LinearLayout>
+
+    <com.shy.rockerview.RockerView
+        android:layout_marginTop="10dp"
+        android:id="@+id/rockerZ_View"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="50dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/llZ"
+        app:rockerCallBackMode="CALL_BACK_MODE_STATE_CHANGE"
+        app:rockerScale="0.5"
+        app:rockerSpeedLevel="10" />
+</androidx.constraintlayout.widget.ConstraintLayout>

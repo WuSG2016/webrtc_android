@@ -1,0 +1,4 @@
+include ':app', ':rtc-chat'
+include ':libwebrtc'
+include ':mclibrary'
+include ':RockerView'
