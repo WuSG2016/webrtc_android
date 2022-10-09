@@ -1,8 +1,6 @@
-# video conference
+# video conference + 串口控制小车
 
 ## 概述
-
-> [English Documents](<https://github.com/ddssingsong/webrtc_android/blob/master/README.md>)
 
 基于 [webrtc](https://webrtc.googlesource.com/) 开发的一套可以进行**单路**或者**多路**语音、视频的系统。
 

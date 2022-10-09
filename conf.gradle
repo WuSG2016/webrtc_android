@@ -3,6 +3,8 @@ ext {
     targetSdkVersion = 29
     compileSdkVersion = 29
     buildToolsVersion = "28.0.3"
+    supportLibVersion = '27.1.1'  // variable that can be referenced to keep support libs consistent
+    commonLibVersion= '2.12.4'
 
     android = [
             SDK_BASENAME    : "rtc-chat",

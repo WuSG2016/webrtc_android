@@ -4,6 +4,8 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.projection.MediaProjection;
@@ -15,7 +17,9 @@ import android.view.View;
 import com.dds.skywebrtc.EnumType;
 import com.dds.skywebrtc.engine.EngineCallback;
 import com.dds.skywebrtc.engine.IEngine;
+import com.dds.skywebrtc.engine.webrtc.uvc.UsbCapturer;
 import com.dds.skywebrtc.render.ProxyVideoSink;
+import com.serenegiant.usb.DeviceFilter;
 
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
@@ -45,6 +49,7 @@ import org.webrtc.audio.AudioDeviceModule;
 import org.webrtc.audio.JavaAudioDeviceModule;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -93,6 +98,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     // -----------------------------------对外方法------------------------------------------
     @Override
     public void init(EngineCallback callback) {
+        Log.e(TAG, "init: ");
         mCallback = callback;
 
         if (mRootEglBase == null) {
@@ -120,6 +126,9 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         if (mCallback != null) {
             mCallback.joinRoomSucc();
         }
+
+        boolean isHeadphonesPlugged = isHeadphonesPlugged();
+        Log.e(TAG, "joinRoom: " + isHeadphonesPlugged);
 
         if (isHeadphonesPlugged()) {
             toggleHeadset(true);
@@ -215,7 +224,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
             peer.close();
             peers.remove(userId);
         }
-       Log.d(TAG, "leaveRoom peers.size() = " + peers.size() + "; mCallback = " + mCallback);
+        Log.d(TAG, "leaveRoom peers.size() = " + peers.size() + "; mCallback = " + mCallback);
         if (peers.size() <= 1) {
             if (mCallback != null) {
                 mCallback.exitRoom();
@@ -233,6 +242,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     @Override
     public View setupLocalPreview(boolean isOverlay) {
+        Log.e(TAG, "setupLocalPreview: ");
         if (mRootEglBase == null) {
             return null;
         }
@@ -241,6 +251,9 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         localRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
         localRenderer.setMirror(true);
         localRenderer.setZOrderMediaOverlay(isOverlay);
+        if (captureAndroid != null && isUsbCameraDevice()) {
+            ((UsbCapturer) captureAndroid).setVideoRender(localRenderer);
+        }
 
         ProxyVideoSink localSink = new ProxyVideoSink();
         localSink.setTarget(localRenderer);
@@ -421,7 +434,8 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
             AudioDeviceInfo[] audioDevices = audioManager.getDevices(AudioManager.GET_DEVICES_ALL);
             for (AudioDeviceInfo deviceInfo : audioDevices) {
                 if (deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADPHONES
-                        || deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADSET) {
+                        || deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADSET
+                        || deviceInfo.getType() == AudioDeviceInfo.TYPE_USB_HEADSET) {
                     return true;
                 }
             }
@@ -558,13 +572,38 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         if (screencaptureEnabled) {
             return createScreenCapturer();
         }
-
-        if (Camera2Enumerator.isSupported(mContext)) {
-            videoCapturer = createCameraCapture(new Camera2Enumerator(mContext));
+        if (isUsbCameraDevice()) {
+            Log.e(TAG, "createVideoCapture: UsbCapturer" );
+            videoCapturer = new UsbCapturer(mContext, localRenderer);
         } else {
-            videoCapturer = createCameraCapture(new Camera1Enumerator(true));
+            if (Camera2Enumerator.isSupported(mContext)) {
+                Log.e(TAG, "createVideoCapture: Camera2Enumerator" );
+                videoCapturer = createCameraCapture(new Camera2Enumerator(mContext));
+            } else {
+                Log.e(TAG, "createVideoCapture: Camera1Enumerator" );
+                videoCapturer = createCameraCapture(new Camera1Enumerator(true));
+            }
         }
         return videoCapturer;
+    }
+
+    private boolean isUsbCameraDevice() {
+        UsbManager mUsbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
+        final List<DeviceFilter> filters = DeviceFilter.getDeviceFilters(mContext, com.serenegiant.uvccamera.R.xml.device_filter2);
+        final HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
+        if (filters.isEmpty()) {
+            return false;
+        }
+        DeviceFilter filter = filters.get(0);
+        if (deviceList != null) {
+            for (final UsbDevice device : deviceList.values()) {
+                if ((filter == null) || (filter.matches(device) && !filter.isExclude)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+
     }
 
     /**
@@ -674,10 +713,10 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     @Override
     public void onDisconnected(String userId) {
         if (mCallback != null) {
-           Log.d(TAG, "onDisconnected mCallback != null");
+            Log.d(TAG, "onDisconnected mCallback != null");
             mCallback.onDisconnected(userId);
         } else {
-           Log.d(TAG, "onDisconnected mCallback == null");
+            Log.d(TAG, "onDisconnected mCallback == null");
         }
     }
 

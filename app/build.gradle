@@ -50,6 +50,7 @@ dependencies {
     implementation project(path: ':mclibrary')
     implementation project(path: ':RockerView')
 
+
     // 内存泄漏检测
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
 
@@ -61,4 +62,5 @@ dependencies {
     implementation 'com.lxj:xpopup:2.2.0'
     //通知提示弹出库
     api 'com.tapadoo.android:alerter:6.2.1'
+
 }

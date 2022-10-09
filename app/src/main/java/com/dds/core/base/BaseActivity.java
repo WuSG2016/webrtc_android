@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.dds.core.util.ActivityStackManager;
 
-public class BaseActivity extends AppCompatActivity {
+public class BaseActivity extends com.serenegiant.common.BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         // 添加Activity到堆栈
